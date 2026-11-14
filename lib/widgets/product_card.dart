@@ -1,29 +1,35 @@
 import 'package:flutter/material.dart';
 import '../models/product.dart';
+import '../l10n/app_localizations.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
+  final AppLanguage language;
   final VoidCallback onTap;
   final VoidCallback onAdd;
 
   const ProductCard({
     super.key,
     required this.product,
+    required this.language,
     required this.onTap,
     required this.onAdd,
   });
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations(language);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.green.shade900.withValues(alpha: 0.06),
+              color: isDark ? Colors.black.withValues(alpha: 0.3) : Colors.green.shade900.withValues(alpha: 0.06),
               blurRadius: 12,
               offset: const Offset(0, 6),
             ),
@@ -56,7 +62,7 @@ class ProductCard extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.95),
+                        color: (isDark ? Colors.black : Colors.white).withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
@@ -71,7 +77,11 @@ class ProductCard extends StatelessWidget {
                           const SizedBox(width: 2),
                           Text(
                             product.rating.toString(),
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? Colors.white : Colors.black87,
+                            ),
                           ),
                         ],
                       ),
@@ -86,16 +96,20 @@ class ProductCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    product.name,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                    l10n.get(product.nameKey),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${product.price.toStringAsFixed(0)} so\'m / ${product.unit}',
+                    '${product.price.toStringAsFixed(0)} so\'m / ${product.unit == 'kg' ? l10n.get('unitKg') : l10n.get('unitDona')}',
                     style: TextStyle(
-                      color: Colors.green.shade700,
+                      color: Colors.green.shade600,
                       fontWeight: FontWeight.w700,
                       fontSize: 13,
                     ),
@@ -116,7 +130,7 @@ class ProductCard extends StatelessWidget {
                         ),
                       ),
                       icon: const Icon(Icons.add_shopping_cart, size: 16),
-                      label: const Text('Savatga', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                      label: Text(l10n.get('addToCart'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                     ),
                   ),
                 ],

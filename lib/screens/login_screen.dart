@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
+  final AppLanguage language;
   final Function(String name, String phone) onLoginSuccess;
 
-  const LoginScreen({super.key, required this.onLoginSuccess});
+  const LoginScreen({super.key, required this.language, required this.onLoginSuccess});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -29,6 +31,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations(widget.language);
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -49,13 +53,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Icon(Icons.local_florist, size: 64, color: Colors.green.shade700),
                   ),
                   const SizedBox(height: 24),
-                  const Text(
-                    'Meva Market',
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF2E7D32)),
+                  Text(
+                    l10n.get('loginTitle'),
+                    style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF2E7D32)),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Tabiiy va sarxil mevalarni tezkor buyurtma qiling',
+                    l10n.get('loginDesc'),
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                   ),
@@ -63,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextFormField(
                     controller: _nameController,
                     decoration: InputDecoration(
-                      labelText: 'Ism va Familiya',
+                      labelText: l10n.get('nameHint'),
                       hintText: 'Masalan: Anvar Toshmatov',
                       prefixIcon: const Icon(Icons.person_outline, color: Colors.green),
                       border: OutlineInputBorder(
@@ -79,7 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: _phoneController,
                     keyboardType: TextInputType.phone,
                     decoration: InputDecoration(
-                      labelText: 'Telefon raqam',
+                      labelText: l10n.get('phoneHint'),
                       hintText: '+998 90 123 45 67',
                       prefixIcon: const Icon(Icons.phone_outlined, color: Colors.green),
                       border: OutlineInputBorder(
@@ -104,9 +108,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         elevation: 0,
                       ),
-                      child: const Text(
-                        'Kirish / Ro\'yxatdan o\'tish',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      child: Text(
+                        l10n.get('loginButton'),
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),

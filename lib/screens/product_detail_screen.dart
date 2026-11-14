@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import '../models/product.dart';
+import '../l10n/app_localizations.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final Product product;
+  final AppLanguage language;
   final Function(Product, {int quantity}) onAddToCart;
 
   const ProductDetailScreen({
     super.key,
     required this.product,
+    required this.language,
     required this.onAddToCart,
   });
 
@@ -20,8 +23,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations(widget.language);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey.shade50,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
@@ -42,9 +48,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           SliverToBoxAdapter(
             child: Container(
               transform: Matrix4.translationValues(0, -20, 0),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
               ),
               padding: const EdgeInsets.all(24),
               child: Column(
@@ -55,7 +61,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       width: 40,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade300,
+                        color: Colors.grey.shade400,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -66,16 +72,20 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     children: [
                       Expanded(
                         child: Text(
-                          widget.product.name,
-                          style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                          l10n.get(widget.product.nameKey),
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.white : Colors.black87,
+                          ),
                         ),
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: Colors.amber.shade50,
+                          color: isDark ? Colors.grey.shade800 : Colors.amber.shade50,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.amber.shade200),
+                          border: Border.all(color: isDark ? Colors.grey.shade700 : Colors.amber.shade200),
                         ),
                         child: Row(
                           children: [
@@ -83,7 +93,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             const SizedBox(width: 4),
                             Text(
                               widget.product.rating.toString(),
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: isDark ? Colors.white : Colors.black87,
+                              ),
                             ),
                           ],
                         ),
@@ -92,27 +106,31 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    '${widget.product.price.toStringAsFixed(0)} so\'m / ${widget.product.unit}',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.green.shade700),
+                    '${widget.product.price.toStringAsFixed(0)} so\'m / ${widget.product.unit == 'kg' ? l10n.get('unitKg') : l10n.get('unitDona')}',
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.green.shade600),
                   ),
                   const SizedBox(height: 24),
-                  const Text(
-                    'Mahsulot haqida',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  Text(
+                    l10n.get('productDescription'),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white70 : Colors.black87,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    widget.product.description,
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 15, height: 1.6),
+                    l10n.get(widget.product.descKey),
+                    style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600, fontSize: 15, height: 1.6),
                   ),
                   const SizedBox(height: 40),
                   Row(
                     children: [
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
+                          color: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.grey.shade300),
+                          border: Border.all(color: isDark ? Colors.grey.shade700 : Colors.grey.shade300),
                         ),
                         child: Row(
                           children: [
@@ -120,18 +138,22 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               onPressed: () {
                                 if (_quantity > 1) setState(() => _quantity--);
                               },
-                              icon: const Icon(Icons.remove),
+                              icon: Icon(Icons.remove, color: isDark ? Colors.white : Colors.black87),
                             ),
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 8),
                               child: Text(
                                 _quantity.toString(),
-                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark ? Colors.white : Colors.black87,
+                                ),
                               ),
                             ),
                             IconButton(
                               onPressed: () => setState(() => _quantity++),
-                              icon: const Icon(Icons.add),
+                              icon: Icon(Icons.add, color: isDark ? Colors.white : Colors.black87),
                             ),
                           ],
                         ),
@@ -154,9 +176,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               ),
                             ),
                             icon: const Icon(Icons.shopping_cart_outlined),
-                            label: const Text(
-                              'Savatga qo\'shish',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            label: Text(
+                              l10n.get('addToCart'),
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                             ),
                           ),
                         ),

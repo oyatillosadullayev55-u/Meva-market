@@ -1,21 +1,21 @@
 class Product {
   final String id;
-  final String name;
+  final String nameKey;
   final double price;
   final String unit;
   final String imageUrl;
-  final String category;
-  final String description;
+  final String categoryKey;
+  final String descKey;
   final double rating;
 
   Product({
     required this.id,
-    required this.name,
+    required this.nameKey,
     required this.price,
     required this.unit,
     required this.imageUrl,
-    required this.category,
-    required this.description,
+    required this.categoryKey,
+    required this.descKey,
     required this.rating,
   });
 }

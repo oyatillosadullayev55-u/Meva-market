@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../models/product.dart';
 import '../data/mock_data.dart';
 import '../widgets/product_card.dart';
-import 'product_detail_screen.dart';
+import '../l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
+  final AppLanguage language;
   final Function(Product, {int quantity}) onAddToCart;
 
-  const HomeScreen({super.key, required this.onAddToCart});
+  const HomeScreen({super.key, required this.language, required this.onAddToCart});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -17,13 +19,16 @@ class _HomeScreenState extends State<HomeScreen> {
   String _selectedCategory = 'Barchasi';
   String _searchQuery = '';
 
-  final List<String> _categories = ['Barchasi', 'Mevalar', 'Tropik', 'Sitrus', 'Rezavorlar'];
-
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations(widget.language);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final List<String> categories = ['Barchasi', 'Mevalar', 'Tropik', 'Sitrus', 'Rezavorlar'];
+
     final filteredProducts = kProducts.where((product) {
-      final matchesCategory = _selectedCategory == 'Barchasi' || product.category == _selectedCategory;
-      final matchesSearch = product.name.toLowerCase().contains(_searchQuery.toLowerCase());
+      final matchesCategory = _selectedCategory == 'Barchasi' || product.categoryKey == _selectedCategory;
+      final productName = l10n.get(product.nameKey).toLowerCase();
+      final matchesSearch = productName.contains(_searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     }).toList();
 
@@ -43,16 +48,16 @@ class _HomeScreenState extends State<HomeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Yetkazib berish manzili',
-                            style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                            l10n.get('deliveryAddress'),
+                            style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey[600], fontSize: 12),
                           ),
-                          const Row(
+                          Row(
                             children: [
-                              Icon(Icons.location_on, color: Colors.green, size: 18),
-                              SizedBox(width: 4),
+                              const Icon(Icons.location_on, color: Colors.green, size: 18),
+                              const SizedBox(width: 4),
                               Text(
-                                'Toshkent shahri, Amir Temur ko\'chasi',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                l10n.get('address'),
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: isDark ? Colors.white : Colors.black87),
                               ),
                             ],
                           ),
@@ -67,11 +72,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 16),
                   TextField(
                     onChanged: (val) => setState(() => _searchQuery = val),
+                    style: TextStyle(color: isDark ? Colors.white : Colors.black87),
                     decoration: InputDecoration(
-                      hintText: 'Sarxil mevalarni qidirish...',
+                      hintText: l10n.get('searchHint'),
+                      hintStyle: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600),
                       prefixIcon: const Icon(Icons.search, color: Colors.green),
                       filled: true,
-                      fillColor: Colors.grey.shade100,
+                      fillColor: isDark ? const Color(0xFF1E1E1E) : Colors.grey.shade100,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide.none,
@@ -95,19 +102,19 @@ class _HomeScreenState extends State<HomeScreen> {
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
+                            children: [
                               Text(
-                                'Yangi Hosil! 🍎',
-                                style: TextStyle(
+                                l10n.get('newHarvest'),
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               Text(
-                                '100% tabiiy va vitaminlarga boy mevalarga 20% gacha chegirma!',
-                                style: TextStyle(color: Colors.white70, fontSize: 13),
+                                l10n.get('harvestDesc'),
+                                style: const TextStyle(color: Colors.white70, fontSize: 13),
                               ),
                             ],
                           ),
@@ -118,52 +125,54 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const Text(
-                    'Kategoriyalar',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  Text(
+                    l10n.get('categories'),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: isDark ? Colors.white : Colors.black87),
                   ),
                   const SizedBox(height: 10),
                   SizedBox(
                     height: 40,
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
-                      itemCount: _categories.length,
+                      itemCount: categories.length,
                       itemBuilder: (context, index) {
-                        final category = _categories[index];
-                        final isSelected = category == _selectedCategory;
+                        final cat = categories[index];
+                        final isSelected = cat == _selectedCategory;
+                        final label = cat == 'Barchasi' ? l10n.get('all') : l10n.get(cat);
                         return Padding(
                           padding: const EdgeInsets.only(right: 8.0),
                           child: ChoiceChip(
-                            label: Text(category),
+                            label: Text(label),
                             selected: isSelected,
                             onSelected: (selected) {
                               setState(() {
-                                _selectedCategory = category;
+                                _selectedCategory = cat;
                               });
                             },
                             selectedColor: Colors.green.shade700,
                             labelStyle: TextStyle(
-                              color: isSelected ? Colors.white : Colors.black87,
+                              color: isSelected ? Colors.white : (isDark ? Colors.white70 : Colors.black87),
                               fontWeight: FontWeight.w500,
                             ),
+                            backgroundColor: isDark ? const Color(0xFF1E1E1E) : null,
                           ),
                         );
                       },
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const Text(
-                    'Barcha mevalar',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  Text(
+                    l10n.get('allFruits'),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: isDark ? Colors.white : Colors.black87),
                   ),
                 ],
               ),
             ),
           ),
           if (filteredProducts.isEmpty)
-            const SliverFillRemaining(
+            SliverFillRemaining(
               child: Center(
-                child: Text('Mevalar topilmadi 🔍', style: TextStyle(fontSize: 16, color: Colors.grey)),
+                child: Text(l10n.get('searchHint'), style: TextStyle(fontSize: 16, color: isDark ? Colors.grey.shade400 : Colors.grey)),
               ),
             )
           else
@@ -181,16 +190,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     final product = filteredProducts[index];
                     return ProductCard(
                       product: product,
+                      language: widget.language,
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ProductDetailScreen(
-                              product: product,
-                              onAddToCart: widget.onAddToCart,
-                            ),
-                          ),
-                        );
+                        context.push('/product-detail', extra: product);
                       },
                       onAdd: () => widget.onAddToCart(product),
                     );

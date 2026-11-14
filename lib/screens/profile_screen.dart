@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import '../widgets/profile_menu_item.dart';
+import '../l10n/app_localizations.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String userName;
   final String userPhone;
+  final AppLanguage language;
+  final ThemeMode themeMode;
+  final Function(AppLanguage) onLanguageChanged;
+  final Function(ThemeMode) onThemeChanged;
   final VoidCallback onLogout;
   final Function(String, String)? onUpdateProfile;
 
@@ -11,6 +16,10 @@ class ProfileScreen extends StatefulWidget {
     super.key,
     required this.userName,
     required this.userPhone,
+    required this.language,
+    required this.themeMode,
+    required this.onLanguageChanged,
+    required this.onThemeChanged,
     required this.onLogout,
     this.onUpdateProfile,
   });
@@ -33,23 +42,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _showEditProfileDialog(BuildContext context) {
     final nameController = TextEditingController(text: _name);
     final phoneController = TextEditingController(text: _phone);
+    final l10n = AppLocalizations(widget.language);
 
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Profilni tahrirlash'),
+        title: Text(l10n.get('profile')),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: nameController,
-              decoration: const InputDecoration(labelText: 'Ism va Familiya'),
+              decoration: InputDecoration(labelText: l10n.get('nameHint')),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: phoneController,
               keyboardType: TextInputType.phone,
-              decoration: const InputDecoration(labelText: 'Telefon raqam'),
+              decoration: InputDecoration(labelText: l10n.get('phoneHint')),
             ),
           ],
         ),
@@ -80,7 +90,104 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  void _showLanguageDialog(BuildContext context) {
+    final l10n = AppLocalizations(widget.language);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.get('language')),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            RadioListTile<AppLanguage>(
+              title: const Text('O\'zbekcha'),
+              value: AppLanguage.uz,
+              groupValue: widget.language,
+              onChanged: (val) {
+                if (val != null) {
+                  widget.onLanguageChanged(val);
+                  Navigator.pop(ctx);
+                }
+              },
+            ),
+            RadioListTile<AppLanguage>(
+              title: const Text('Русский'),
+              value: AppLanguage.ru,
+              groupValue: widget.language,
+              onChanged: (val) {
+                if (val != null) {
+                  widget.onLanguageChanged(val);
+                  Navigator.pop(ctx);
+                }
+              },
+            ),
+            RadioListTile<AppLanguage>(
+              title: const Text('English'),
+              value: AppLanguage.en,
+              groupValue: widget.language,
+              onChanged: (val) {
+                if (val != null) {
+                  widget.onLanguageChanged(val);
+                  Navigator.pop(ctx);
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showThemeDialog(BuildContext context) {
+    final l10n = AppLocalizations(widget.language);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.get('settings')),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            RadioListTile<ThemeMode>(
+              title: Text(l10n.get('lightTheme')),
+              value: ThemeMode.light,
+              groupValue: widget.themeMode,
+              onChanged: (val) {
+                if (val != null) {
+                  widget.onThemeChanged(val);
+                  Navigator.pop(ctx);
+                }
+              },
+            ),
+            RadioListTile<ThemeMode>(
+              title: Text(l10n.get('darkTheme')),
+              value: ThemeMode.dark,
+              groupValue: widget.themeMode,
+              onChanged: (val) {
+                if (val != null) {
+                  widget.onThemeChanged(val);
+                  Navigator.pop(ctx);
+                }
+              },
+            ),
+            RadioListTile<ThemeMode>(
+              title: Text(l10n.get('systemTheme')),
+              value: ThemeMode.system,
+              groupValue: widget.themeMode,
+              onChanged: (val) {
+                if (val != null) {
+                  widget.onThemeChanged(val);
+                  Navigator.pop(ctx);
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _showOrdersHistory(BuildContext context) {
+    final l10n = AppLocalizations(widget.language);
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
@@ -90,19 +197,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Buyurtmalar tarixi', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            Text(l10n.get('ordersHistory'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             ListTile(
               leading: const Icon(Icons.local_shipping, color: Colors.green),
               title: const Text('Buyurtma #1024'),
               subtitle: const Text('Qizil Olma, Banan • 37,000 so\'m'),
               trailing: const Chip(label: Text('Yetkazildi', style: TextStyle(color: Colors.white, fontSize: 12)), backgroundColor: Colors.green),
-            ),
-            ListTile(
-              leading: const Icon(Icons.check_circle, color: Colors.blue),
-              title: const Text('Buyurtma #1021'),
-              subtitle: const Text('Avakado, Limon • 46,000 so\'m'),
-              trailing: const Chip(label: Text('Bajarildi', style: TextStyle(color: Colors.white, fontSize: 12)), backgroundColor: Colors.blue),
             ),
             const SizedBox(height: 20),
           ],
@@ -112,32 +213,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showAddresses(BuildContext context) {
+    final l10n = AppLocalizations(widget.language);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Yetkazib berish manzillari'),
+        title: Text(l10n.get('deliveryAddresses')),
         content: Column(
           mainAxisSize: MainAxisSize.min,
-          children: const [
+          children: [
             ListTile(
-              leading: Icon(Icons.location_on, color: Colors.green),
-              title: Text('Asosiy manzil'),
-              subtitle: Text('Toshkent shahri, Amir Temur ko\'chasi 15-uy'),
+              leading: const Icon(Icons.location_on, color: Colors.green),
+              title: const Text('Asosiy manzil'),
+              subtitle: Text(l10n.get('address')),
             ),
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Yangi manzil qo\'shish oynasi')));
-            },
-            child: const Text('+ Manzil qo\'shish'),
-          ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.green.shade700, foregroundColor: Colors.white),
-            child: const Text('Yopish'),
+            child: const Text('OK'),
           ),
         ],
       ),
@@ -145,10 +240,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showPaymentMethods(BuildContext context) {
+    final l10n = AppLocalizations(widget.language);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('To\'lov usullari'),
+        title: Text(l10n.get('paymentMethods')),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: const [
@@ -175,49 +271,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void _showSettings(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (context, setStateModal) {
-          bool notifications = true;
-          return AlertDialog(
-            title: const Text('Sozlamalar'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SwitchListTile(
-                  title: const Text('Bildirishnomalar'),
-                  value: notifications,
-                  onChanged: (val) {
-                    setStateModal(() => notifications = val);
-                  },
-                ),
-                ListTile(
-                  title: const Text('Ilova tili'),
-                  trailing: const Text('O\'zbekcha', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green)),
-                  onTap: () {},
-                ),
-              ],
-            ),
-            actions: [
-              ElevatedButton(
-                onPressed: () => Navigator.pop(ctx),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.green.shade700, foregroundColor: Colors.white),
-                child: const Text('Saqlash'),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
   void _showSupport(BuildContext context) {
+    final l10n = AppLocalizations(widget.language);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Qo\'llab-quvvatlash xizmati'),
+        title: Text(l10n.get('support')),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -247,12 +306,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations(widget.language);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
-        title: const Text('Profil', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        title: Text(l10n.get('profile'), style: const TextStyle(fontWeight: FontWeight.bold)),
         elevation: 0,
       ),
       body: SingleChildScrollView(
@@ -262,11 +321,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 30),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
                 borderRadius: const BorderRadius.vertical(bottom: Radius.circular(30)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.shade100,
+                    color: isDark ? Colors.black.withValues(alpha: 0.3) : Colors.grey.withValues(alpha: 0.1),
                     blurRadius: 10,
                     offset: const Offset(0, 5),
                   ),
@@ -291,7 +350,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             decoration: BoxDecoration(
                               color: Colors.green.shade700,
                               shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 2),
+                              border: Border.all(color: isDark ? const Color(0xFF1E1E1E) : Colors.white, width: 2),
                             ),
                             child: const Icon(Icons.edit, size: 14, color: Colors.white),
                           ),
@@ -302,12 +361,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 16),
                   Text(
                     _name,
-                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: isDark ? Colors.white : Colors.black87),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     _phone,
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                    style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600, fontSize: 14),
                   ),
                 ],
               ),
@@ -318,27 +377,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   ProfileMenuItem(
                     icon: Icons.history_rounded,
-                    title: 'Buyurtmalar tarixi',
+                    title: l10n.get('ordersHistory'),
                     onTap: () => _showOrdersHistory(context),
                   ),
                   ProfileMenuItem(
                     icon: Icons.location_on_outlined,
-                    title: 'Yetkazib berish manzillari',
+                    title: l10n.get('deliveryAddresses'),
                     onTap: () => _showAddresses(context),
                   ),
                   ProfileMenuItem(
                     icon: Icons.payment_rounded,
-                    title: 'To\'lov usullari',
+                    title: l10n.get('paymentMethods'),
                     onTap: () => _showPaymentMethods(context),
                   ),
                   ProfileMenuItem(
-                    icon: Icons.settings_outlined,
-                    title: 'Sozlamalar',
-                    onTap: () => _showSettings(context),
+                    icon: Icons.language_rounded,
+                    title: l10n.get('language'),
+                    onTap: () => _showLanguageDialog(context),
+                  ),
+                  ProfileMenuItem(
+                    icon: Icons.brightness_6_rounded,
+                    title: l10n.get('settings'),
+                    onTap: () => _showThemeDialog(context),
                   ),
                   ProfileMenuItem(
                     icon: Icons.support_agent_rounded,
-                    title: 'Qo\'llab-quvvatlash xizmati',
+                    title: l10n.get('support'),
                     onTap: () => _showSupport(context),
                   ),
                   const SizedBox(height: 20),
@@ -353,7 +417,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                     icon: const Icon(Icons.logout_rounded),
-                    label: const Text('Hisobdan chiqish', style: TextStyle(fontWeight: FontWeight.bold)),
+                    label: Text(l10n.get('logout'), style: const TextStyle(fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),

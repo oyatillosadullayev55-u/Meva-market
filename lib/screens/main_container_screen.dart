@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/product.dart';
 import '../models/cart_item.dart';
+import '../l10n/app_localizations.dart';
 import 'home_screen.dart';
 import 'cart_screen.dart';
 import 'profile_screen.dart';
@@ -8,12 +9,20 @@ import 'profile_screen.dart';
 class MainContainerScreen extends StatefulWidget {
   final String userName;
   final String userPhone;
+  final AppLanguage language;
+  final ThemeMode themeMode;
+  final Function(AppLanguage) onLanguageChanged;
+  final Function(ThemeMode) onThemeChanged;
   final VoidCallback onLogout;
 
   const MainContainerScreen({
     super.key,
     required this.userName,
     required this.userPhone,
+    required this.language,
+    required this.themeMode,
+    required this.onLanguageChanged,
+    required this.onThemeChanged,
     required this.onLogout,
   });
 
@@ -26,6 +35,7 @@ class _MainContainerScreenState extends State<MainContainerScreen> {
   final List<CartItem> _cartItems = [];
 
   void _addToCart(Product product, {int quantity = 1}) {
+    final l10n = AppLocalizations(widget.language);
     setState(() {
       final index = _cartItems.indexWhere((item) => item.product.id == product.id);
       if (index >= 0) {
@@ -54,12 +64,12 @@ class _MainContainerScreenState extends State<MainContainerScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Savatga qo’shildi! ✓',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white),
+                  Text(
+                    l10n.get('addedToCart'),
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white),
                   ),
                   Text(
-                    '${product.name} ($quantity ${product.unit})',
+                    '${l10n.get(product.nameKey)} ($quantity ${product.unit == 'kg' ? l10n.get('unitKg') : l10n.get('unitDona')})',
                     style: const TextStyle(fontSize: 12, color: Colors.white70),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -70,7 +80,7 @@ class _MainContainerScreenState extends State<MainContainerScreen> {
           ],
         ),
         action: SnackBarAction(
-          label: 'Savat',
+          label: l10n.get('cart'),
           textColor: Colors.amberAccent,
           onPressed: () {
             setState(() {
@@ -109,9 +119,12 @@ class _MainContainerScreenState extends State<MainContainerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations(widget.language);
+
     final List<Widget> screens = [
-      HomeScreen(onAddToCart: _addToCart),
+      HomeScreen(language: widget.language, onAddToCart: _addToCart),
       CartScreen(
+        language: widget.language,
         cartItems: _cartItems,
         onUpdateQuantity: _updateCartQuantity,
         onRemoveItem: _removeCartItem,
@@ -122,8 +135,8 @@ class _MainContainerScreenState extends State<MainContainerScreen> {
           showDialog(
             context: context,
             builder: (ctx) => AlertDialog(
-              title: const Text('Buyurtma qabul qilindi! 🎉'),
-              content: const Text('Tez orada kurerimiz siz bilan bog’lanadi va mevalar yetkazib beriladi.'),
+              title: Text(l10n.get('orderSuccess')),
+              content: Text(l10n.get('orderSuccessDesc')),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx),
@@ -137,6 +150,10 @@ class _MainContainerScreenState extends State<MainContainerScreen> {
       ProfileScreen(
         userName: widget.userName,
         userPhone: widget.userPhone,
+        language: widget.language,
+        themeMode: widget.themeMode,
+        onLanguageChanged: widget.onLanguageChanged,
+        onThemeChanged: widget.onThemeChanged,
         onLogout: widget.onLogout,
       ),
     ];
@@ -151,10 +168,10 @@ class _MainContainerScreenState extends State<MainContainerScreen> {
           });
         },
         destinations: [
-          const NavigationDestination(
-            icon: Icon(Icons.storefront_outlined),
-            selectedIcon: Icon(Icons.storefront),
-            label: 'Market',
+          NavigationDestination(
+            icon: const Icon(Icons.storefront_outlined),
+            selectedIcon: const Icon(Icons.storefront),
+            label: l10n.get('market'),
           ),
           NavigationDestination(
             icon: Badge(
@@ -167,12 +184,12 @@ class _MainContainerScreenState extends State<MainContainerScreen> {
               label: Text(_cartItems.fold(0, (sum, item) => sum + item.quantity).toString()),
               child: const Icon(Icons.shopping_cart),
             ),
-            label: 'Savat',
+            label: l10n.get('cart'),
           ),
-          const NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'Profil',
+          NavigationDestination(
+            icon: const Icon(Icons.person_outline),
+            selectedIcon: const Icon(Icons.person),
+            label: l10n.get('profile'),
           ),
         ],
       ),
